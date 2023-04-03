@@ -1,7 +1,6 @@
 import pygame
-from keyconfig import KeyConfig
 from button import Button
-from keysetting_screen import KeySettingsScreen
+
 
 WHITE = (255, 255, 255)
 BLUE = (0, 0, 255)
@@ -11,9 +10,8 @@ TITLE_FONT = pygame.font.Font(None, 72)
 TITLE_TEXT = "UNO"
 
 class SettingsScreen:
-    def __init__(self, screen, key_config):
+    def __init__(self, screen):
         self.screen = screen
-        self.key_config = key_config
         self.title_text = "UNO"
         self.running = True
         self.settings_buttons = [
@@ -53,22 +51,19 @@ class SettingsScreen:
                 if event.type == pygame.QUIT:
                     return False
                 for button in self.settings_buttons:
-                    if button.handle_event(event, self.key_config):
+                    if button.handle_event(event):
                         print(f"{button.text} button clicked")
                         if button == self.settings_buttons[0]:
                             self.window_size_index = (self.window_size_index + 1) % len(WINDOW_SIZES)
                             self.change_window_size(WINDOW_SIZES[self.window_size_index])
                             button.text = f"Window Size: {WINDOW_SIZES[self.window_size_index][0]}x{WINDOW_SIZES[self.window_size_index][1]}"
                             button.update_size()
-                        elif button == self.settings_buttons[1]:  # The Key Setting button
-                                key_settings_screen = KeySettingsScreen(self.screen, self.key_config)
-                                key_settings_screen.run()
                         elif button == self.settings_buttons[-1]:
                             self.running = False
-                new_focused_index = Button.handle_keyboard_navigation(event, self.settings_buttons, self.focused_index, self.key_config)
+                new_focused_index = Button.handle_keyboard_navigation(event, self.settings_buttons, self.focused_index)
                 focused_index = Button.handle_mouse_hover_for_buttons(event, self.settings_buttons, focused_index)
                 back_button = self.settings_buttons[-1]
-                if back_button.handle_event(event, self.key_config):
+                if back_button.handle_event(event):
                     running = False
                 if new_focused_index != self.focused_index:
                     self.settings_buttons[self.focused_index].focused = False

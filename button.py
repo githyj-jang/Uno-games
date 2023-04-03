@@ -1,5 +1,4 @@
 import pygame
-from keyconfig import KeyConfig
 from pygame.locals import *
 
 pygame.init()
@@ -11,7 +10,6 @@ BLACK = (0, 0, 0)
 # 폰트 초기화
 pygame.font.init()
 BUTTON_FONT = pygame.font.SysFont('Arial', 24)
-
 
 class Button:
     def __init__(self, x_ratio, y_ratio, width_ratio, height_ratio, text, button_color=WHITE, text_color=BLACK, y_offset=0):
@@ -38,16 +36,16 @@ class Button:
         self.text_surface = BUTTON_FONT.render(self.text, True, self.text_color)
         self.text_rect = self.text_surface.get_rect(center=self.rect.center)
 
-    def handle_keyboard_navigation(event, buttons, focused_index, key_config):
+    def handle_keyboard_navigation(event, buttons, focused_index):
         if event.type == pygame.KEYDOWN:
-            if event.key == key_config.get_key("up") or event.key == key_config.get_key("down"):
+            if event.key == pygame.K_UP or event.key == pygame.K_DOWN:
                 # Unfocus the current button
                 buttons[focused_index].focused = False
                 
                 # Update the focused_index based on the key pressed
-                if event.key == key_config.get_key("up"):
+                if event.key == pygame.K_UP:
                     focused_index -= 1
-                elif event.key == key_config.get_key("down"):
+                elif event.key == pygame.K_DOWN:
                     focused_index += 1
                 
                 # Keep the index within the range of buttons
@@ -55,7 +53,7 @@ class Button:
                 
                 # Focus the new button
                 buttons[focused_index].focused = True
-            elif event.key == key_config.get_key("enter"):
+            elif event.key == pygame.K_RETURN or event.key == pygame.K_SPACE:
                 if buttons[focused_index].handle_event(event):
                     print(f"Button {focused_index} pressed")
         return focused_index
@@ -71,21 +69,18 @@ class Button:
                 elif button.focused and not any(btn.hover for btn in buttons):
                     button.focused = False
         return focused_index
-    
+
     def draw(self, surface):
         pygame.draw.rect(surface, self.button_color, self.rect)
-        if self.hover:
-            pygame.draw.rect(surface, self.text_color, self.rect, 2)  # Draw border for hovered button
-        if self.focused:  # Draw an additional border for the focused button
-            pygame.draw.rect(surface, self.text_color, self.rect.inflate(6, 6), 3)
+        if self.hover or self.focused:
+            pygame.draw.rect(surface, self.text_color, self.rect, 2)  # Draw border for hovered or focused button
         surface.blit(self.text_surface, self.text_rect)
 
-    def handle_event(self, event, key_config):
+    def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             if self.rect.collidepoint(event.pos):
                 return True
-        elif event.type == key_config.get_key("enter"):  # Updated this line
-            if self.focused:
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_RETURN and self.focused:
                 return True
         return False
-

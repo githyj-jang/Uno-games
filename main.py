@@ -1,7 +1,6 @@
 import pygame, os
 from button import Button
 from setting_screen import SettingsScreen
-from keyconfig import KeyConfig
 from pygame.locals import *
 
 # Initialize Pygame
@@ -17,7 +16,6 @@ SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 BUTTON_FONT = pygame.font.Font(None, 36)
 TITLE_FONT = pygame.font.Font(None, 72)
-key_config = KeyConfig()
 
 # Create a Pygame window and set its title bar
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -72,20 +70,20 @@ while running:
             update_start_page_button_sizes()
             update_title_text_size()
         # Check for button clicks on the start page
-        if start_button.handle_event(event, key_config):
+        if start_button.handle_event(event):
             print("Start button clicked")
-        if settings_button.handle_event(event, key_config):
+        if settings_button.handle_event(event):
             print("Settings button clicked")
-            settings_screen = SettingsScreen(screen, key_config)
+            settings_screen = SettingsScreen(screen)
             settings_screen.run()
             update_start_page_button_sizes() # update button sizes when returning from setting screen
             update_title_text_size() # update title text size when returning from setting screen
-        if exit_button.handle_event(event, key_config):
+        if exit_button.handle_event(event):
             print("Exit button clicked")
             running = False
 
         # Handle keyboard navigation
-        focused_index = Button.handle_keyboard_navigation(event, start_page_buttons, focused_index, key_config)
+        focused_index = Button.handle_keyboard_navigation(event, start_page_buttons, focused_index)
         focused_index = Button.handle_mouse_hover_for_buttons(event, start_page_buttons, focused_index)
 
     # Draw the title and buttons on the start page
