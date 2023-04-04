@@ -1,8 +1,22 @@
 import random
 import time
 import threading
-import math
+import sys
 import pygame
+
+class Popup(pygame.sprite.Sprite):
+    def __init__(self, name, position):
+        pygame.sprite.Sprite.__init__(self)
+        self.name = name
+        self.image = pygame.image.load('./img/'+name+'.png')
+        self.position = position
+        self.rect = self.image.get_rect()
+        self.rect.center = self.position
+
+    def get_name(self):
+        return self.name
+    def get_rect(self):
+        return self.rect
 
 # 카드 생성. 그림도 각 객체에 들아가도록 함
 class Card(pygame.sprite.Sprite):
@@ -407,43 +421,74 @@ class Game:
         pygame.display.update()
     
     
-    # 미완
+    #카드 사이즈 조정 필요
     def deck_print(self):
 
         for i in len(self.players[0].hand):
-            player_hand = pygame.image.load('./img/Deck.png')
-            self.window.blit()
+            player_hand = self.players[0].hand[i].image
+            self.window.blit(player_hand,self.window_sizes[self.window_sizes][0]//3+self.card_sizes[self.window_size][0]//4+self.card_sizes[self.window_size][1]//2+(self.window_sizes[self.window_size]//3-self.card_sizes[self.window_size][1])//len(self.players[0].hand)*i, (self.window_sizes[self.window_sizes][1]//3)*2+ self.card_sizes[self.window_size][0]*4//3)
 
-        for j in len(self.players[1].hand):
+        for i in len(self.players[1].hand):
             cpu1_hand = pygame.image.load('./img/Deck.png')
-            self.window.blit(cpu1_hand,(self.window_sizes[self.window_sizes][0]//3+self.card_sizes[self.window_size][0]//4, self.card_sizes[self.window_size][0]//4))
+            self.window.blit(cpu1_hand,(self.window_sizes[self.window_sizes][0]//3+self.card_sizes[self.window_size][0]//4+self.card_sizes[self.window_size][1]//2+(self.window_sizes[self.window_size]//3-self.card_sizes[self.window_size][1])//len(self.players[1].hand)*i, self.card_sizes[self.window_size][0]*4//3))
 
         if len(self.players) >= 3:
             for i in len(self.players[2].hand):
                 cpu2_hand =pygame.image.load('./img/Deck.png')
-                self.window.blit()
+                self.window.blit(cpu2_hand,(self.card_sizes[self.window_size][0]//4+self.card_sizes[self.window_size][1]//2+(self.window_sizes[self.window_size]//3-self.card_sizes[self.window_size][1])//len(self.players[2].hand)*i, self.window_sizes[self.window_sizes][1]//3+self.card_sizes[self.window_size][0]*4//3))
         if len(self.players) >= 4:
             for i in len(self.players[3].hand):
                 cpu3_hand =pygame.image.load('./img/Deck.png')
-                self.window.blit()
+                self.window.blit(cpu3_hand,(self.window_sizes[self.window_sizes][0]//3*2+self.card_sizes[self.window_size][0]//4+self.card_sizes[self.window_size][1]//2+(self.window_sizes[self.window_size]//3-self.card_sizes[self.window_size][1])//len(self.players[3].hand)*i, self.window_sizes[self.window_sizes][1]//3+self.card_sizes[self.window_size][0]*4//3))
         if len(self.players) >= 5:
             for i in len(self.players[4].hand):
                 cpu4_hand =pygame.image.load('./img/Deck.png')
-                self.window.blit()
+                self.window.blit(cpu4_hand,(self.card_sizes[self.window_size][0]//4+self.card_sizes[self.window_size][1]//2+(self.window_sizes[self.window_size]//3-self.card_sizes[self.window_size][1])//len(self.players[4].hand)*i, self.card_sizes[self.window_size][0]*4//3))
+
         if len(self.players) >= 6:
             for i in len(self.players[5].hand):
                 cpu5_hand =pygame.image.load('./img/Deck.png')
-                self.window.blit()
+                self.window.blit(cpu5_hand,(self.window_sizes[self.window_sizes][0]//3*2+self.card_sizes[self.window_size][0]//4+self.card_sizes[self.window_size][1]//2+(self.window_sizes[self.window_size]//3-self.card_sizes[self.window_size][1])//len(self.players[5].hand)*i, self.card_sizes[self.window_size][0]*4//3))
 
 
 
+    #skill effect
+    def skill_effect(self,card):
+        skill_image = pygame.image.load('./img/'+card.value+'.png')
+        self.window.blit(skill_image,(self.window_sizes[self.window_sizes][0]//3*2+self.card_sizes[self.window_size][0]//4+self.card_sizes[self.window_size][1]//2+(self.window_sizes[self.window_size]//3-self.card_sizes[self.window_size][1])//len(self.players[5].hand)*i, self.card_sizes[self.window_size][0]*8//3))
 
 
+    #color change
+    def pick_color(self): # 위치 조정 예정
+        color_popup = Popup('pickcolor', (400, 300))
+        popup_group = pygame.sprite.RenderPlain(color_popup)
+        red = Popup('RED', (306, 320))
+        yellow = Popup('YELLOW', (368, 320))
+        green = Popup('GREEN', (432, 320))
+        blue = Popup('BLUE', (494, 320))
+        colors = [red, yellow, green, blue]
+        color_group = pygame.sprite.RenderPlain(*colors)
 
-
-
-
-
+        loop = True
+        while loop:
+            popup_group.draw(self.window)
+            color_group.draw(self.window)
+            pygame.display.update()
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                if event.type == pygame.MOUSEBUTTONUP: # 다음에 내야할 곳에 표시 수정 사항
+                    mouse_pos = pygame.mouse.get_pos()
+                    for sprite in color_group:
+                        if sprite.get_rect().collidepoint(mouse_pos):
+                            temp_name = sprite.get_name()
+                            temp = Card(temp_name, (430, 300))
+                            self.waste_card.append(temp_name)
+                            self.waste_group.add(temp)
+                            self.printwindow()
+                            loop = False
+        return 0
 
     def text_format(self, message, textSize, textColor):
         newFont = pygame.font.SysFont('Berlin Sans FB', textSize, True, False)
